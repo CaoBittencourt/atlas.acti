@@ -221,6 +221,7 @@ fun_acti_classifier <- function(
     , dbl_scale_lb = 0
     , dbl_scale_ub = 1
     , int_levels = 5
+    , chr_class_labels = NULL
 ){
   
   # Arguments validation
@@ -244,6 +245,19 @@ fun_acti_classifier <- function(
       is.numeric(int_levels)
   )
   
+  stopifnot(
+    "'chr_class_labels' must be either NULL or a character vector with length equal to 'int_levels'." = 
+      any(
+        is.null(chr_class_labels),
+        all(
+          is.character(chr_class_labels),
+          length(chr_class_labels) ==
+            ceiling(int_levels[[1]])
+        )
+      )
+  )
+  
+  
   # Data wrangling
   dbl_scale_lb[[1]] -> dbl_scale_lb
   
@@ -252,7 +266,7 @@ fun_acti_classifier <- function(
   int_levels[[1]] -> int_levels
   ceiling(int_levels) -> int_levels
   
-  # Classify competency level
+  # Classify variable
   findInterval(
     dbl_var
     , seq(
@@ -266,6 +280,21 @@ fun_acti_classifier <- function(
   
   names(dbl_var) -> 
     names(int_class_id)
+  
+  if(!is.null(chr_class_labels)){
+    
+    factor(
+      int_class_id
+      , levels =
+        sort(unique(
+          int_class_id
+        ))
+      , labels =
+        chr_class_labels
+      , ordered = T
+    ) -> int_class_id
+    
+  }
   
   # Output
   return(int_class_id)
