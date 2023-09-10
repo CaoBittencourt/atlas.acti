@@ -286,9 +286,7 @@ fun_acti_classifier <- function(
     factor(
       int_class_id
       , levels =
-        sort(unique(
-          int_class_id
-        ))
+        1:int_levels
       , labels =
         chr_class_labels
       , ordered = T
