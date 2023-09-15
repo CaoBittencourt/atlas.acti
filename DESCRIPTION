@@ -12,6 +12,7 @@ Depends:
     atlas.ftools,
     atlas.skew,
     atlas.eqvl,
+    ggplot2
 Remotes: 
   github::caobittencourt/atlas.ftools,
   github::caobittencourt/atlas.skew,
