@@ -610,6 +610,25 @@ fun_acti_type <- function(
       , chr_aux
     ) -> chr_acti_type
     
+    if(
+      first(
+        df_data$
+        generalism
+      ) > 0.5
+    ){
+      
+      paste0(
+        'G:', chr_acti_type
+      ) -> chr_acti_type
+      
+    } else {
+      
+      paste0(
+        'S:', chr_acti_type
+      ) -> chr_acti_type
+      
+    }
+    
     # Output
     return(chr_acti_type)
     
@@ -2202,7 +2221,7 @@ fun_acti_plot_molecule <- function(df_acti, chr_factor_pal = NULL){
 # 
 # # - Generalism test -------------------------------------------------------
 # fun_acti_generalism(
-#   dbl_profile = 
+#   dbl_profile =
 #     rnorm(50, 50, 25) %>%
 #     pmax(0) %>%
 #     pmin(100)
@@ -2210,7 +2229,7 @@ fun_acti_plot_molecule <- function(df_acti, chr_factor_pal = NULL){
 # )
 # 
 # fun_acti_generalism(
-#   dbl_profile = 
+#   dbl_profile =
 #     rnorm(50, 50, 5) %>%
 #     pmax(0) %>%
 #     pmin(100)
@@ -2218,7 +2237,7 @@ fun_acti_plot_molecule <- function(df_acti, chr_factor_pal = NULL){
 # )
 # 
 # fun_acti_generalism(
-#   dbl_profile = 
+#   dbl_profile =
 #     rnorm(50, 50, 0) %>%
 #     pmax(0) %>%
 #     pmin(100)
@@ -2228,15 +2247,15 @@ fun_acti_plot_molecule <- function(df_acti, chr_factor_pal = NULL){
 # # - Indispensability test -------------------------------------------------
 # fun_acti_indispensability(
 #   dbl_profile =
-#     rnorm(50, 50, 25) %>% 
-#     pmax(0) %>% 
+#     rnorm(50, 50, 25) %>%
+#     pmax(0) %>%
 #     pmin(100)
 #   , dbl_scale_lb = 0
 # ) %>% round(4)
 # 
 # # - Competency test -------------------------------------------------------
 # fun_acti_competency(
-#   dbl_profile = 
+#   dbl_profile =
 #     rnorm(50, 100, 25) %>%
 #     pmax(0) %>%
 #     pmin(100)
@@ -2245,7 +2264,7 @@ fun_acti_plot_molecule <- function(df_acti, chr_factor_pal = NULL){
 # )
 # 
 # fun_acti_competency(
-#   dbl_profile = 
+#   dbl_profile =
 #     rnorm(50, 50, 25) %>%
 #     pmax(0) %>%
 #     pmin(100)
@@ -2254,7 +2273,7 @@ fun_acti_plot_molecule <- function(df_acti, chr_factor_pal = NULL){
 # )
 # 
 # fun_acti_competency(
-#   dbl_profile = 
+#   dbl_profile =
 #     rnorm(50, 50, 5) %>%
 #     pmax(0) %>%
 #     pmin(100)
@@ -2263,7 +2282,7 @@ fun_acti_plot_molecule <- function(df_acti, chr_factor_pal = NULL){
 # )
 # 
 # fun_acti_competency(
-#   dbl_profile = 
+#   dbl_profile =
 #     rnorm(50, 50, 0) %>%
 #     pmax(0) %>%
 #     pmin(100)
@@ -2272,8 +2291,8 @@ fun_acti_plot_molecule <- function(df_acti, chr_factor_pal = NULL){
 # )
 # 
 # # - Numerical ACTI test ---------------------------------------------------
-# df_occupations %>% 
-#   slice_sample(n = 10) -> 
+# df_occupations %>%
+#   slice_sample(n = 10) ->
 #   dsds
 # 
 # fun_acti_type(
@@ -2285,11 +2304,12 @@ fun_acti_plot_molecule <- function(df_acti, chr_factor_pal = NULL){
 #     'An', 'Mt', 'Rb',
 #     'In', 'Mc'
 #   )
-#   , chr_data_id = 
+#   , chr_data_id =
 #     dsds$occupation
 #   , efa_model = efa_model
 #   , dbl_scale_lb = 0
 # )
+# 
 # # - ACTI Molecules --------------------------------------------------------------------
 # c(
 #   'Ds', 'Eg', 'Hs',
@@ -2317,10 +2337,10 @@ fun_acti_plot_molecule <- function(df_acti, chr_factor_pal = NULL){
 #   ) -> dsds
 # 
 # fun_acti_type(
-#   df_data = 
-#     dsds %>% 
+#   df_data =
+#     dsds %>%
 #     bind_rows(
-#       dsds %>% 
+#       dsds %>%
 #         mutate(
 #           occupation =
 #             'dsds'
