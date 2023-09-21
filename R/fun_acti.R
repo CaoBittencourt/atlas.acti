@@ -743,6 +743,16 @@ fun_acti_plot_specialist <- function(df_acti){
   )
   
   # Specialist molecule helper functions
+  if(!any(nrow(df_acti) == 1:14)){
+    
+    # Warning
+    warning("Invalid ACTI type.")
+    
+    # Output
+    return(NULL)
+    
+  }
+  
   if(nrow(df_acti) == 1){
     
     # Polygon
@@ -758,7 +768,9 @@ fun_acti_plot_specialist <- function(df_acti){
     xlim(c(-2, 2)) -> scale_xlim
     ylim(c(-2, 2)) -> scale_ylim
     
-  } else if(nrow(df_acti) == 2){
+  } 
+  
+  if(nrow(df_acti) == 2){
     
     # Polygon
     fun_acti_plot_polygon(2) %>%
@@ -773,7 +785,9 @@ fun_acti_plot_specialist <- function(df_acti){
     xlim(c(-2, 2)) -> scale_xlim
     ylim(c(-4, 2.5)) -> scale_ylim
     
-  } else if(nrow(df_acti) == 3){
+  } 
+  
+  if(nrow(df_acti) == 3){
     
     # Polygon
     fun_acti_plot_polygon(3) %>%
@@ -788,7 +802,9 @@ fun_acti_plot_specialist <- function(df_acti){
     xlim(c(-2, 2)) -> scale_xlim
     ylim(c(-2, 2)) -> scale_ylim
     
-  } else if(nrow(df_acti) == 4){
+  } 
+  
+  if(nrow(df_acti) == 4){
     
     # Polygon
     fun_acti_plot_polygon(4) ->
@@ -807,7 +823,9 @@ fun_acti_plot_specialist <- function(df_acti){
     xlim(c(-2, 2)) -> scale_xlim
     ylim(c(-2, 2)) -> scale_ylim
     
-  } else if(nrow(df_acti) == 5){
+  } 
+  
+  if(nrow(df_acti) == 5){
     
     # Polygon
     bind_rows(
@@ -830,7 +848,9 @@ fun_acti_plot_specialist <- function(df_acti){
     xlim(c(-2, 2)) -> scale_xlim
     ylim(c(-1.5, 1.5)) -> scale_ylim
     
-  } else if(nrow(df_acti) == 6){
+  } 
+  
+  if(nrow(df_acti) == 6){
     
     # Polygon
     bind_rows(
@@ -883,7 +903,9 @@ fun_acti_plot_specialist <- function(df_acti){
     xlim(c(-3, 3)) -> scale_xlim
     ylim(c(-1.25, 1.25)) -> scale_ylim
     
-  } else if(nrow(df_acti) == 7){
+  } 
+  
+  if(nrow(df_acti) == 7){
     
     #Polygon
     bind_rows(
@@ -939,7 +961,9 @@ fun_acti_plot_specialist <- function(df_acti){
     xlim(c(-4, 4)) -> scale_xlim
     ylim(c(-1.25, 1.25)) -> scale_ylim
     
-  } else if(nrow(df_acti) == 8){
+  } 
+  
+  if(nrow(df_acti) == 8){
     
     # Polygon
     bind_rows(
@@ -996,7 +1020,9 @@ fun_acti_plot_specialist <- function(df_acti){
     xlim(c(-3, 3)) -> scale_xlim
     ylim(c(-1.5, 1.5)) -> scale_ylim
     
-  } else if(nrow(df_acti) == 9){
+  } 
+  
+  if(nrow(df_acti) == 9){
     
     # Polygon
     bind_rows(
@@ -1056,7 +1082,9 @@ fun_acti_plot_specialist <- function(df_acti){
     xlim(c(-4, 4)) -> scale_xlim
     ylim(c(-1.25, 1.25)) -> scale_ylim
     
-  } else if(nrow(df_acti) == 10){
+  } 
+  
+  if(nrow(df_acti) == 10){
     
     # Polygon
     bind_rows(
@@ -1119,7 +1147,9 @@ fun_acti_plot_specialist <- function(df_acti){
     xlim(c(-3, 3)) -> scale_xlim
     ylim(c(-1.5, 1.5)) -> scale_ylim
     
-  } else if(nrow(df_acti) == 11){
+  } 
+  
+  if(nrow(df_acti) == 11){
     
     # Polygon
     bind_rows(
@@ -1199,7 +1229,9 @@ fun_acti_plot_specialist <- function(df_acti){
     xlim(c(-4, 4)) -> scale_xlim
     ylim(c(-1.25, 1.25)) -> scale_ylim
     
-  } else if(nrow(df_acti) == 12){
+  } 
+  
+  if(nrow(df_acti) == 12){
     
     # Polygon
     bind_rows(
@@ -1260,7 +1292,9 @@ fun_acti_plot_specialist <- function(df_acti){
     xlim(c(-3, 3)) -> scale_xlim
     ylim(c(-3, 3)) -> scale_ylim
     
-  } else if(nrow(df_acti) == 13){
+  } 
+  
+  if(nrow(df_acti) == 13){
     
     # Polygon
     bind_rows(
@@ -1323,7 +1357,9 @@ fun_acti_plot_specialist <- function(df_acti){
     xlim(c(-4, 4)) -> scale_xlim
     ylim(c(-4, 4)) -> scale_ylim
     
-  } else if(nrow(df_acti) == 14){
+  } 
+  
+  if(nrow(df_acti) == 14){
     
     # Polygon
     bind_rows(
@@ -1408,15 +1444,7 @@ fun_acti_plot_specialist <- function(df_acti){
     xlim(c(-2.5, 2.5)) -> scale_xlim
     ylim(c(-1.5, 1.5)) -> scale_ylim
     
-  } else {
-    
-    # Warning
-    warning("Invalid ACTI type.")
-    
-    # Output
-    return(NULL)
-    
-  }
+  } 
   
   # Plot ACTI molecule
   df_polygon %>%
@@ -1465,6 +1493,16 @@ fun_acti_plot_generalist <- function(df_acti){
   )
   
   # Specialist molecule helper functions
+  if(!any(nrow(df_acti) == 1:14)){
+    
+    # Warning
+    warning("Invalid ACTI type.")
+    
+    # Output
+    return(NULL)
+    
+  }
+  
   if(nrow(df_acti) == 1){
     
     # Polygon
@@ -1480,7 +1518,9 @@ fun_acti_plot_generalist <- function(df_acti){
     xlim(c(-2, 2)) -> scale_xlim
     ylim(c(-2, 2)) -> scale_ylim
     
-  } else if(nrow(df_acti) == 2){
+  } 
+  
+  if(nrow(df_acti) == 2){
     
     # Polygon
     fun_acti_plot_polygon(2) %>%
@@ -1497,7 +1537,9 @@ fun_acti_plot_generalist <- function(df_acti){
     xlim(c(-4, 4)) -> scale_xlim
     ylim(c(-2, 2)) -> scale_ylim
     
-  } else if(nrow(df_acti) == 3){
+  } 
+  
+  if(nrow(df_acti) == 3){
     
     # Polygon
     fun_acti_plot_polygon(3) %>% 
@@ -1511,7 +1553,9 @@ fun_acti_plot_generalist <- function(df_acti){
     xlim(c(-2, 2)) -> scale_xlim
     ylim(c(-2, 2)) -> scale_ylim
     
-  } else if(nrow(df_acti) == 4){
+  } 
+  
+  if(nrow(df_acti) == 4){
     
     # Polygon
     fun_acti_plot_polygon(4) %>%
@@ -1525,7 +1569,9 @@ fun_acti_plot_generalist <- function(df_acti){
     xlim(c(-2, 2)) -> scale_xlim
     ylim(c(-2, 2)) -> scale_ylim
     
-  } else if(nrow(df_acti) == 5){
+  } 
+  
+  if(nrow(df_acti) == 5){
     
     # Polygon
     fun_acti_plot_polygon(5) %>% 
@@ -1539,7 +1585,9 @@ fun_acti_plot_generalist <- function(df_acti){
     xlim(c(-2.25, 2.25)) -> scale_xlim
     ylim(c(-1.25, 1.25)) -> scale_ylim
     
-  } else if(nrow(df_acti) == 6){
+  } 
+  
+  if(nrow(df_acti) == 6){
     
     # Polygon
     fun_acti_plot_polygon(6) %>% 
@@ -1559,7 +1607,9 @@ fun_acti_plot_generalist <- function(df_acti){
     xlim(c(-1.5, 1.5)) -> scale_xlim
     ylim(c(-1.5, 1.5)) -> scale_ylim
     
-  } else if(nrow(df_acti) == 7){
+  } 
+  
+  if(nrow(df_acti) == 7){
     
     # Polygon
     bind_rows(
@@ -1600,7 +1650,9 @@ fun_acti_plot_generalist <- function(df_acti){
     xlim(c(-1.5, 1.5)) -> scale_xlim
     ylim(c(-1.5, 1.5)) -> scale_ylim
     
-  } else if(nrow(df_acti) == 8){
+  } 
+  
+  if(nrow(df_acti) == 8){
     
     # Polygon
     bind_rows(
@@ -1641,7 +1693,9 @@ fun_acti_plot_generalist <- function(df_acti){
     xlim(c(-2, 2)) -> scale_xlim
     ylim(c(-1.5, 1.5)) -> scale_ylim
     
-  } else if(nrow(df_acti) == 9){
+  } 
+  
+  if(nrow(df_acti) == 9){
     
     # Polygon
     bind_rows(
@@ -1693,7 +1747,9 @@ fun_acti_plot_generalist <- function(df_acti){
     xlim(c(-5, 5)) -> scale_xlim
     ylim(c(-1.5, 1.5)) -> scale_ylim
     
-  } else if(nrow(df_acti) == 10){
+  } 
+  
+  if(nrow(df_acti) == 10){
     
     # Polygon
     bind_rows(
@@ -1744,7 +1800,9 @@ fun_acti_plot_generalist <- function(df_acti){
     xlim(c(-3, 3)) -> scale_xlim
     ylim(c(-4, 4)) -> scale_ylim
     
-  } else if(nrow(df_acti) == 11){
+  } 
+  
+  if(nrow(df_acti) == 11){
     
     # Polygon
     bind_rows(
@@ -1797,7 +1855,9 @@ fun_acti_plot_generalist <- function(df_acti){
     xlim(c(-2, 2)) -> scale_xlim
     ylim(c(-3, 3)) -> scale_ylim
     
-  } else if(nrow(df_acti) == 12){
+  } 
+  
+  if(nrow(df_acti) == 12){
     
     # Polygon
     bind_rows(
@@ -1850,7 +1910,9 @@ fun_acti_plot_generalist <- function(df_acti){
     xlim(c(-1.5, 1.5)) -> scale_xlim
     ylim(c(-1.5, 3.5)) -> scale_ylim
     
-  } else if(nrow(df_acti) == 13){
+  } 
+  
+  if(nrow(df_acti) == 13){
     
     # Polygon
     bind_rows(
@@ -1908,7 +1970,9 @@ fun_acti_plot_generalist <- function(df_acti){
     xlim(c(-2, 2)) -> scale_xlim
     ylim(c(-1.5, 1.5)) -> scale_ylim
     
-  } else if(nrow(df_acti) == 14){
+  } 
+  
+  if(nrow(df_acti) == 14){
     
     # Polygon
     bind_rows(
@@ -1969,15 +2033,7 @@ fun_acti_plot_generalist <- function(df_acti){
     xlim(c(-2.5, 2.5)) -> scale_xlim
     ylim(c(-1.5, 1.5)) -> scale_ylim
     
-  } else {
-    
-    # Warning
-    warning("Invalid ACTI type.")
-    
-    # Output
-    return(NULL)
-    
-  }
+  } 
   
   # Plot ACTI molecule
   df_polygon %>%
