@@ -1245,7 +1245,7 @@ fun_acti_plot_specialist <- function(df_acti){
     # Plot elements
     aes(x = x, y = y, group = group) -> aes_map
     geom_line(color = 'lightgrey', linewidth = 1.25) -> geom_connection
-    xlim(c(-4, 4)) -> scale_xlim
+    xlim(c(-4.25, 4.25)) -> scale_xlim
     ylim(c(-1.25, 1.25)) -> scale_ylim
     
   } 
@@ -1256,31 +1256,42 @@ fun_acti_plot_specialist <- function(df_acti){
     bind_rows(
       
       fun_acti_plot_polygon(3) %>%
-        
+        mutate(
+          y = 1.25
+        ) %>%
         fun_acti_plot_rotate(
           dbl_theta = -pi/2
         ) %>%
         mutate(
-          x = x + 2
+          x = x + 3
         ),
       
       fun_acti_plot_polygon(3) %>%
+        mutate(
+          y = 1.25
+        ) %>%
         fun_acti_plot_rotate(
           dbl_theta = pi/2
         ) %>%
         mutate(
-          x = x - 2
+          x = x - 3
         )
       
     ) -> df_polygon
     
     bind_rows(
       
-      df_polygon,
+      df_polygon %>% 
+        mutate(
+          y = y * 2
+        ),
       
       df_polygon %>%
         fun_acti_plot_rotate(
           dbl_theta = pi/2
+        ) %>% 
+        mutate(
+          y = y * 1.25
         )
       
     ) -> df_polygon
@@ -1308,7 +1319,7 @@ fun_acti_plot_specialist <- function(df_acti){
     # Plot elements
     aes(x = x, y = y) -> aes_map
     geom_path(color = 'lightgrey', linewidth = 1.25) -> geom_connection
-    xlim(c(-3, 3)) -> scale_xlim
+    xlim(c(-2, 2)) -> scale_xlim
     ylim(c(-3, 3)) -> scale_ylim
     
   } 
@@ -1319,6 +1330,9 @@ fun_acti_plot_specialist <- function(df_acti){
     bind_rows(
       
       fun_acti_plot_polygon(3) %>%
+        mutate(
+          y = 1.25
+        ) %>%
         fun_acti_plot_rotate(
           dbl_theta = -pi/2
         ) %>%
@@ -1327,6 +1341,9 @@ fun_acti_plot_specialist <- function(df_acti){
         ),
       
       fun_acti_plot_polygon(3) %>%
+        mutate(
+          y = 1.25
+        ) %>%
         fun_acti_plot_rotate(
           dbl_theta = pi/2
         ) %>%
@@ -1338,11 +1355,17 @@ fun_acti_plot_specialist <- function(df_acti){
     
     bind_rows(
       
-      df_polygon,
+      df_polygon %>% 
+        mutate(
+          y = y * 2
+        ),
       
       df_polygon %>%
         fun_acti_plot_rotate(
           dbl_theta = pi/2
+        ) %>% 
+        mutate(
+          y = y * 1.25
         ),
       
       tibble(x = 0, y = 0)
@@ -1373,8 +1396,8 @@ fun_acti_plot_specialist <- function(df_acti){
     # Plot elements
     aes(x = x, y = y) -> aes_map
     geom_path(color = 'lightgrey', linewidth = 1.25) -> geom_connection
-    xlim(c(-4, 4)) -> scale_xlim
-    ylim(c(-4, 4)) -> scale_ylim
+    xlim(c(-2, 2)) -> scale_xlim
+    ylim(c(-3, 3)) -> scale_ylim
     
   } 
   
@@ -1460,7 +1483,8 @@ fun_acti_plot_specialist <- function(df_acti){
     # Plot elements
     aes(x = x, y = y, group = group) -> aes_map
     geom_line(color = 'lightgrey', linewidth = 1.25) -> geom_connection
-    xlim(c(-2.5, 2.5)) -> scale_xlim
+    # xlim(c(-2.5, 2.5)) -> scale_xlim
+    xlim(c(-2.75, 2.75)) -> scale_xlim
     ylim(c(-1.5, 1.5)) -> scale_ylim
     
   } 
@@ -1485,7 +1509,6 @@ fun_acti_plot_specialist <- function(df_acti){
     scale_size_continuous(
       range = c(20, 30)
     ) +
-    # scale_color_manual() + 
     guides(
       size = 'none',
       color = 'none'
@@ -1601,8 +1624,8 @@ fun_acti_plot_generalist <- function(df_acti){
     # Plot elements
     aes(x = x, y = y) -> aes_map
     geom_polygon(color = 'lightgrey', linewidth = 1.25, fill = NA) -> geom_connection
-    xlim(c(-2.25, 2.25)) -> scale_xlim
-    ylim(c(-1.25, 1.25)) -> scale_ylim
+    xlim(c(-2.5, 2.5)) -> scale_xlim
+    ylim(c(-1.5, 1.5)) -> scale_ylim
     
   } 
   
@@ -1868,11 +1891,11 @@ fun_acti_plot_generalist <- function(df_acti){
         
       ) -> df_polygon
     
-    # Plot elements
+    # Plot element
     aes(x = x, y = y) -> aes_map
     geom_polygon(color = 'lightgrey', linewidth = 1.25, fill = NA) -> geom_connection
-    xlim(c(-2, 2)) -> scale_xlim
-    ylim(c(-3, 3)) -> scale_ylim
+    xlim(c(-2.5, 2.5)) -> scale_xlim
+    ylim(c(-3.75, 3.75)) -> scale_ylim
     
   } 
   
@@ -1926,8 +1949,8 @@ fun_acti_plot_generalist <- function(df_acti){
     # Plot elements
     aes(x = x, y = y) -> aes_map
     geom_path(color = 'lightgrey', linewidth = 1.25) -> geom_connection
-    xlim(c(-1.5, 1.5)) -> scale_xlim
-    ylim(c(-1.5, 3.5)) -> scale_ylim
+    xlim(c(-1.75, 1.75)) -> scale_xlim
+    ylim(c(-1.75, 3.75)) -> scale_ylim
     
   } 
   
@@ -1986,8 +2009,8 @@ fun_acti_plot_generalist <- function(df_acti){
     # Plot elements
     aes(x = x, y = y) -> aes_map
     geom_path(color = 'lightgrey', linewidth = 1.25) -> geom_connection
-    xlim(c(-2, 2)) -> scale_xlim
-    ylim(c(-1.5, 1.5)) -> scale_ylim
+    xlim(c(-2.5, 2.5)) -> scale_xlim
+    ylim(c(-1.75, 1.75)) -> scale_ylim
     
   } 
   
@@ -2049,8 +2072,8 @@ fun_acti_plot_generalist <- function(df_acti){
     # Plot elements
     aes(x = x, y = y) -> aes_map
     geom_path(color = 'lightgrey', linewidth = 1.25) -> geom_connection
-    xlim(c(-2.5, 2.5)) -> scale_xlim
-    ylim(c(-1.5, 1.5)) -> scale_ylim
+    xlim(c(-2.75, 2.75)) -> scale_xlim
+    ylim(c(-1.75, 1.75)) -> scale_ylim
     
   } 
   
@@ -2071,7 +2094,6 @@ fun_acti_plot_generalist <- function(df_acti){
     scale_size_continuous(
       range = c(20, 30)
     ) +
-    # scale_color_manual() + 
     guides(
       size = 'none',
       color = 'none'
@@ -2203,6 +2225,7 @@ fun_acti_plot_molecule <- function(df_acti, chr_factor_pal = NULL){
   
 }
 
+
 # # [TEST] ------------------------------------------------------------------
 # # - Data ------------------------------------------------------------------
 # library(readr)
@@ -2319,34 +2342,16 @@ fun_acti_plot_molecule <- function(df_acti, chr_factor_pal = NULL){
 #   'In', 'Mc'
 # ) -> chr_factor_pal
 # 
-# chr_factor_pal %>%
-#   length() %>%
-#   viridis() %>%
-#   set_names(
-#     chr_factor_pal
-#   ) -> chr_factor_pal
-# 
-# c(
-#   chr_factor_pal
-#   , 'Aux' = 'lightgrey'
-# ) -> chr_factor_pal
-# 
 # df_occupations %>%
 #   filter(
 #     occupation == 'Crematory Operators'
 #   ) -> dsds
 # 
 # fun_acti_type(
-#   df_data =
-#     dsds %>%
-#     bind_rows(
-#       dsds %>%
-#         mutate(
-#           occupation =
-#             'dsds'
-#         )
-#     )
-#   # df_data = df_occupations
+#   df_data = dsds
+#   # df_data = 
+#   # df_occupations %>% 
+#   # slice_head(n = 10)
 #   , chr_factor_labels = c(
 #     'Ds', 'Eg', 'Hs',
 #     'Mn', 'Tr', 'Ad',
@@ -2355,83 +2360,72 @@ fun_acti_plot_molecule <- function(df_acti, chr_factor_pal = NULL){
 #     'In', 'Mc'
 #   )
 #   , chr_data_id =
-#     c(dsds$occupation, 'dsds')
-#   # df_occupations$occupation
+#     dsds$occupation
+#   # df_occupations$occupation[1:10]
 #   , efa_model = efa_model
 #   , dbl_scale_lb = 0
 # ) -> df_acti
 # 
+# map_df(
+#   1:nrow(df_acti)
+#   , ~ df_acti %>% 
+#     slice_head(
+#       n = .x
+#     ) %>% 
+#     mutate(
+#       generalism = 0
+#       , occupation = 
+#         paste0(
+#           occupation,
+#           '_specialist'
+#         )
+#       , occupation = 
+#         paste0(
+#           occupation, .x
+#         )
+#     )
+# ) %>% 
+#   bind_rows(
+#     map_df(
+#       1:nrow(df_acti)
+#       , ~ df_acti %>% 
+#         slice_head(
+#           n = .x
+#         ) %>% 
+#         mutate(
+#           occupation = 
+#             paste0(
+#               occupation,
+#               '_generalist'
+#             )
+#           , occupation = 
+#             paste0(
+#               occupation, .x
+#             )
+#         ))
+#   ) -> df_acti
+# 
+# df_acti %>% 
+#   mutate(
+#     occupation =
+#       str_replace_all(
+#         occupation
+#         , ' ', '_'
+#       )
+#     , occupation = 
+#       str_to_lower(
+#         occupation
+#       )
+#     , occupation = factor(
+#       occupation
+#       , levels = unique(
+#         occupation
+#       )
+#     )
+#   ) -> df_acti
+# 
 # df_acti %>%
 #   fun_acti_plot_molecule(
-#     chr_factor_pal =
-#       chr_factor_pal
+#     # chr_factor_pal =
+#     #   chr_factor_pal
 #   ) -> list_plt_acti
-# 
-# map(
-#   1:nrow(df_acti)
-#   , ~ df_acti %>%
-#     mutate(generalism = 0) %>%
-#     slice_head(n = .x) %>%
-#     fun_acti_plot_molecule(
-#       chr_factor_pal
-#     )
-# ) -> list_plt_acti_specialist
-# 
-# map(
-#   1:nrow(df_acti)
-#   , ~ df_acti %>%
-#     slice_head(n = .x) %>%
-#     fun_acti_plot_molecule(
-#       chr_factor_pal
-#     )
-# ) -> list_plt_acti_generalist
-# 
-# list_plt_acti_specialist
-# 
-# list_plt_acti_generalist
-# 
-# df_acti %>%
-#   group_by(
-#     occupation
-#   ) %>%
-#   reframe(
-#     acti_type =
-#       first(acti_type)
-#   ) %>%
-#   left_join(
-#     df_occupations %>%
-#       select(
-#         occupation,
-#         employment_variants
-#       )
-#   ) %>%
-#   mutate(
-#     pct_population =
-#       employment_variants /
-#       sum(employment_variants)
-#   ) %>%
-#   group_by(
-#     acti_type
-#   ) %>%
-#   reframe(
-#     pct_population =
-#       sum(pct_population)
-#   ) %>%
-#   arrange(desc(
-#     pct_population
-#   )) %>%
-#   mutate(
-#     pct_cum_sum =
-#       cumsum(pct_population)
-#   ) -> df_acti_freq
-# 
-# df_acti_freq %>%
-#   fun_plot.bar(aes(
-#     x = acti_type,
-#     y = pct_population
-#   )
-#   , .coord_polar = T
-#   , .fun_format.y = percent
-#   , .list_labs = list(
-#     y = 'ACTI Types Frequency'
-#   ))
