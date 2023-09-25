@@ -260,6 +260,7 @@ fun_acti_classifier <- function(
     , dbl_scale_lb = 0
     , dbl_scale_ub = 1
     , int_levels = 5
+    , chr_class_labels = NULL
 ){
   
   # Arguments validation
@@ -283,6 +284,18 @@ fun_acti_classifier <- function(
       is.numeric(int_levels)
   )
   
+  stopifnot(
+    "'chr_class_labels' must be either NULL or a character vector with length equal to 'int_levels'." = 
+      any(
+        is.null(chr_class_labels),
+        all(
+          is.character(chr_class_labels),
+          length(chr_class_labels) ==
+            ceiling(int_levels[[1]])
+        )
+      )
+  )
+  
   # Data wrangling
   dbl_scale_lb[[1]] -> dbl_scale_lb
   
@@ -291,7 +304,7 @@ fun_acti_classifier <- function(
   int_levels[[1]] -> int_levels
   ceiling(int_levels) -> int_levels
   
-  # Classify competency level
+  # Classify variable
   findInterval(
     dbl_var
     , seq(
@@ -306,6 +319,19 @@ fun_acti_classifier <- function(
   names(dbl_var) -> 
     names(int_class_id)
   
+  if(!is.null(chr_class_labels)){
+    
+    factor(
+      int_class_id
+      , levels =
+        1:int_levels
+      , labels =
+        chr_class_labels
+      , ordered = T
+    ) -> int_class_id
+    
+  }
+  
   # Output
   return(int_class_id)
   
@@ -316,9 +342,8 @@ fun_acti_type <- function(
     df_data
     , efa_model
     , chr_factor_labels = NULL
-    , chr_data_id = NULL
+    , chr_id_col = NULL
     , dbl_scale_lb = 0
-    , dbl_generalism = NULL
 ){
   
   # Arguments validation
@@ -345,13 +370,12 @@ fun_acti_type <- function(
   )
   
   stopifnot(
-    "'chr_data_id' must be either NULL or a character vector with labels for each observation." =
+    "'chr_id_col' must be either NULL or a string indicating an ID column in 'df_data'." =
       any(
-        is.null(chr_data_id)
+        is.null(chr_id_col)
         , all(
-          is.character(chr_data_id)
-          , length(chr_data_id) ==
-            nrow(df_data)
+          is.character(chr_id_col)
+          , chr_id_col %in% names(df_data)
         )
       )
   )
@@ -361,218 +385,144 @@ fun_acti_type <- function(
       is.numeric(dbl_scale_lb)
   )
   
-  stopifnot(
-    "'dbl_generalism' must be either NULL or numeric." =
-      any(
-        is.numeric(dbl_generalism)
-        , is.null(dbl_generalism)
-      )
-  )
-  
   # Data wrangling
   dbl_scale_lb[[1]] -> dbl_scale_lb
   
-  df_data %>%
-    select(any_of(
-      efa_model$
-        model %>%
-        colnames()
-    )) -> df_data
+  chr_id_col[[1]] -> chr_id_col
   
-  dbl_generalism[[1]] -> dbl_generalism
-  
-  if(is.null(dbl_generalism)){
+  if(!is.null(chr_id_col)){
     
-    apply(
-      df_data, 1
-      , fun_acti_generalism
-      , dbl_scale_lb =
-        dbl_scale_lb
-    ) -> dbl_generalism
+    df_data[[chr_id_col]] ->
+      df_data$id_profile
+    
+  } else {
+    
+    paste0(
+      'Subject', 1:nrow(df_data)
+    ) -> df_data$id_profile
     
   }
   
+  rm(chr_id_col)
+  
+  df_data %>%
+    select(
+      id_profile
+      , any_of(
+        efa_model$
+          model %>%
+          colnames()
+      )
+    ) -> df_data
+  
+  # Generalism
+  apply(
+    df_data %>% select(-id_profile)
+    , 1, fun_acti_generalism
+    , dbl_scale_lb = dbl_scale_lb
+  ) -> dbl_generalism
+  
+  df_data$id_profile -> 
+    names(dbl_generalism)
+  
   # Factor scores
   fun_ftools_factor_scores(
-    df_data =
-      df_data
-    , efa_model =
-      efa_model
-    , lgc_pivot = F
+    df_data = df_data
+    , efa_model = efa_model
+    , lgc_pivot = T
   ) -> df_factor_scores
   
+  rm(efa_model)
   rm(df_data)
-  
-  # Apply indispensability function
-  mapply(
-    function(profile, generalism){
-      
-      # Calculate item indispensability
-      fun_acti_indispensability(
-        dbl_profile = profile
-        , dbl_scale_lb = dbl_scale_lb
-        , dbl_generalism = generalism
-      ) -> dbl_indispensability
-      
-      # Output
-      return(dbl_indispensability)
-      
-    }
-    , profile = as_tibble(t(
-      df_factor_scores
-    )) 
-    , generalism = dbl_generalism
-  ) %>% 
-    t() %>%
-    as_tibble() -> 
-    df_factor_scores
   
   # Name factors
   if(is.null(chr_factor_labels)){
     
-    paste0('F', 1:ncol(
-      df_factor_scores
-    )) -> chr_factor_labels
+    paste0(
+      'F', 1:length(unique(
+        df_factor_scores$factor
+      ))) -> chr_factor_labels
     
   }
   
-  names(
-    df_factor_scores
-  ) <- chr_factor_labels
+  rep(
+    chr_factor_labels
+    , nrow(df_factor_scores) / 
+      length(chr_factor_labels)
+  ) -> df_factor_scores$factor
   
   rm(chr_factor_labels)
   
-  # Sort
-  apply(
-    df_factor_scores, 1
-    , sort
-    , decreasing = T
-    , simplify = F
-  ) -> list_factor_scores
-  
-  rm(df_factor_scores)
-  
-  # Classify scores
-  lapply(
-    list_factor_scores
-    , function(x){
-      
-      fun_acti_classifier(
-        dbl_var = x
-        , dbl_scale_lb = 0
-        , dbl_scale_ub = 1
-        , int_levels = 3
-      )
-      
-    }
-  ) -> list_classification
-  
-  # Keep only dominant and auxiliary factors (drop minor)
-  lapply(
-    list_classification
-    , function(x){return(x[x > 1])}
-  ) -> list_classification
-  
-  Map(
-    function(factor_scores, factor_class){
-      
-      # Get dominant and auxiliary factors
-      factor_scores[
-        names(factor_scores) %in%
-          names(factor_class)
-      ] -> factor_scores
-      
-      # Output
-      return(factor_scores)
-      
-    }
-    , factor_scores = list_factor_scores
-    , factor_class = list_classification
-  ) -> list_factor_scores
-  
-  chr_data_id -> names(list_classification)
-  chr_data_id -> names(list_factor_scores)
-  chr_data_id -> names(dbl_generalism)
-  
-  rm(chr_data_id)
-  
-  # ACTI data frame
-  dbl_generalism %>%
-    as_tibble(
-      rownames = 'occupation'
-    ) %>%
+  # Estimate ACTI scores
+  as_tibble(
+    dbl_generalism
+    , rownames =
+      'id_profile'
+  ) %>% 
     rename(
       generalism = 2
-    ) %>% 
-    full_join(
-      bind_rows(
-        list_factor_scores
-        , .id = 'occupation'
-      ) %>% 
-        pivot_longer(
-          cols = where(is.numeric)
-          , names_to = 'factor'
-          , values_to = 'acti_score'
-        )
-    ) %>%
-    full_join(
-      bind_rows(
-        list_classification
-        , .id = 'occupation'
-      ) %>% 
-        pivot_longer(
-          cols = where(is.numeric)
-          , names_to = 'factor'
-          , values_to = 'class'
-        )
-    ) -> df_acti
+    ) -> df_generalism
   
-  rm(list_factor_scores)
-  rm(list_classification)
   rm(dbl_generalism)
   
-  df_acti %>% 
+  df_factor_scores %>% 
+    right_join(
+      df_generalism
+    ) %>% 
+    group_by(
+      id_profile
+    ) %>% 
     mutate(
-      factor = 
-        factor(
-          factor
+      acti_score = 
+        fun_acti_indispensability(
+          dbl_profile = 
+            factor_score
+          , dbl_generalism = 
+            first(generalism)
         )
+      , acti_class = 
+        fun_acti_classifier(
+          acti_score
+          , dbl_scale_lb = 0
+          , dbl_scale_ub = 1
+          , int_levels = 3
+          , chr_class_labels = 
+            c('Min', 'Aux', 'Dom')
+        )
+      , factor = factor(factor)
+    ) %>% 
+    filter(
+      acti_class != 'Min'
     ) -> df_acti
   
-  df_acti %>% 
-    mutate(
-      class = 
-        case_match(
-          class
-          , 2 ~ 'Aux'
-          , 3 ~ 'Dom'
-        )
+  rm(df_factor_scores)
+  rm(df_generalism)
+  
+  # Arrange
+  df_acti %>%
+    group_by(
+      id_profile
+    ) %>%
+    arrange(
+      desc(acti_score)
+      , .by_group = T
     ) %>%
     drop_na() %>% 
-    group_by(
-      occupation
-    ) %>% 
-    arrange(desc(
-      acti_score
-    ), .by_group = T
-    ) %>% 
     mutate(
-      rank = row_number()
+      factor_rank = 
+        row_number()
     ) %>% 
-    ungroup() -> 
+    ungroup() ->
     df_acti
   
   # Factor and font color
   df_acti %>%
     mutate(
-      atom_color = 
-        if_else(
-          class == 'Aux'
-          , class
-          , factor
-        )
-      , font_color = 
-        atom_color
+      atom_color = if_else(
+        acti_class == 'Aux'
+        , as.character(acti_class)
+        , as.character(factor)
+      )
     ) -> df_acti
   
   # ACTI type acronym helper function
@@ -581,7 +531,7 @@ fun_acti_type <- function(
     # ACTI type acronym
     df_data %>%
       filter(
-        class == 'Dom'
+        acti_class == 'Dom'
       ) %>%
       pull(factor) %>%
       paste0(
@@ -590,7 +540,7 @@ fun_acti_type <- function(
     
     df_data %>%
       filter(
-        class != 'Dom'
+        acti_class != 'Dom'
       ) %>%
       pull(factor) %>%
       paste0(
@@ -636,18 +586,32 @@ fun_acti_type <- function(
   
   # Calculate ACTI acronyms
   df_acti %>% 
-    split(.$occupation) %>% 
+    split(.$id_profile) %>% 
     sapply(
       fun_acti_type_helper
     ) %>% 
     as_tibble(
-      rownames = 'occupation'
+      rownames = 'id_profile'
     ) %>%
     rename(
       acti_type = 2
     ) %>% 
     left_join(
       df_acti
+    ) -> df_acti
+  
+  # Relocate columns
+  df_acti %>% 
+    relocate(
+      id_profile,
+      acti_type,
+      generalism,
+      factor,
+      factor_rank,
+      factor_score,
+      acti_score,
+      acti_class,
+      atom_color
     ) -> df_acti
   
   # 'df_acti' subclass
@@ -778,7 +742,7 @@ fun_acti_plot_specialist <- function(df_acti){
     fun_acti_plot_polygon(1) %>%
       mutate(
         y = y - 0.75,
-        rank = 1
+        factor_rank = 1
       ) -> df_polygon
     
     # Plot elements
@@ -794,7 +758,7 @@ fun_acti_plot_specialist <- function(df_acti){
     # Polygon
     fun_acti_plot_polygon(2) %>%
       mutate(
-        rank = c(2, 1),
+        factor_rank = c(2, 1),
         group = 1
       ) -> df_polygon
     
@@ -811,7 +775,7 @@ fun_acti_plot_specialist <- function(df_acti){
     # Polygon
     fun_acti_plot_polygon(3) %>%
       mutate(
-        rank = c(2, 3, 1),
+        factor_rank = c(2, 3, 1),
         group = 1
       ) -> df_polygon
     
@@ -832,7 +796,7 @@ fun_acti_plot_specialist <- function(df_acti){
     df_polygon %>% 
       slice(1:4, 4) %>%
       mutate(
-        rank = c(2, 4, 3, 1, 1),
+        factor_rank = c(2, 4, 3, 1, 1),
         group = c(1, 2, 1, 1, 2)
       ) -> df_polygon
     
@@ -857,7 +821,7 @@ fun_acti_plot_specialist <- function(df_acti){
     
     df_polygon %>%
       mutate(
-        rank = c(2, 3, 5, 4, 1),
+        factor_rank = c(2, 3, 5, 4, 1),
         group = c(1, 2, 1, 2, 1)
       ) -> df_polygon
     
@@ -900,7 +864,7 @@ fun_acti_plot_specialist <- function(df_acti){
     
     df_polygon %>%
       mutate(
-        rank = c(
+        factor_rank = c(
           6, 3, 2,
           5, 4, 1
         )
@@ -957,7 +921,7 @@ fun_acti_plot_specialist <- function(df_acti){
     
     df_polygon %>%
       mutate(
-        rank = c(
+        factor_rank = c(
           6, 7, 2,
           5, 4, 3,
           1
@@ -1013,7 +977,7 @@ fun_acti_plot_specialist <- function(df_acti){
     
     df_polygon %>%
       mutate(
-        rank = c(
+        factor_rank = c(
           4, 8, 5, 1,
           6, 7, 3, 2
         )
@@ -1078,7 +1042,7 @@ fun_acti_plot_specialist <- function(df_acti){
     
     df_polygon %>%
       mutate(
-        rank = c(
+        factor_rank = c(
           6, 7, 2, 4,
           5, 3, 8, 9,
           1
@@ -1154,7 +1118,7 @@ fun_acti_plot_specialist <- function(df_acti){
     
     df_polygon %>% 
       mutate(
-        rank = c(
+        factor_rank = c(
           8, 10, 6, 4, 1, 
           5, 9, 7, 3, 2 
         )
@@ -1221,7 +1185,7 @@ fun_acti_plot_specialist <- function(df_acti){
     
     df_polygon %>% 
       mutate(
-        rank = c(
+        factor_rank = c(
           11, 2, 10, 3, 5,
           4, 7, 6, 8, 9,
           1
@@ -1298,7 +1262,7 @@ fun_acti_plot_specialist <- function(df_acti){
     
     df_polygon %>% 
       mutate(
-        rank = c(
+        factor_rank = c(
           9, 10, 2, 7, 8, 3,
           6, 5, 4, 11, 12, 1
         )
@@ -1374,7 +1338,7 @@ fun_acti_plot_specialist <- function(df_acti){
     
     df_polygon %>% 
       mutate(
-        rank = c(
+        factor_rank = c(
           6, 7, 2, 8, 9, 3,
           11, 10, 5, 12, 13, 4,
           1
@@ -1460,7 +1424,7 @@ fun_acti_plot_specialist <- function(df_acti){
     
     df_polygon %>% 
       mutate(
-        rank= c(
+        factor_rank = c(
           7, 10, 8, 1, 4, 6, 9,
           5, 2, 3, 11, 12, 13, 14
         )
@@ -1491,14 +1455,11 @@ fun_acti_plot_specialist <- function(df_acti){
   
   # Plot ACTI molecule
   df_polygon %>%
-    mutate(
-      label = row_number()
-    ) %>%
     left_join(df_acti) %>%
     ggplot(aes_map) +
     geom_connection +
     geom_point(aes(
-      size = acti_score,
+      size = factor_score,
       color = atom_color
     )) +
     geom_text(aes(
@@ -1551,7 +1512,7 @@ fun_acti_plot_generalist <- function(df_acti){
     fun_acti_plot_polygon(1) %>%
       mutate(
         y = y - 0.75,
-        rank = 1
+        factor_rank = 1
       ) -> df_polygon
     
     # Plot elements
@@ -1570,7 +1531,7 @@ fun_acti_plot_generalist <- function(df_acti){
         dbl_theta = pi/2
       ) %>% 
       mutate(
-        rank = c(2, 1)
+        factor_rank = c(2, 1)
       ) -> df_polygon
     
     # Plot elements
@@ -1586,7 +1547,7 @@ fun_acti_plot_generalist <- function(df_acti){
     # Polygon
     fun_acti_plot_polygon(3) %>% 
       mutate(
-        rank = c(1, 2, 3)
+        factor_rank = c(1, 2, 3)
       ) -> df_polygon
     
     # Plot elements
@@ -1602,7 +1563,7 @@ fun_acti_plot_generalist <- function(df_acti){
     # Polygon
     fun_acti_plot_polygon(4) %>%
       mutate(
-        rank = c(1, 3, 2, 4)
+        factor_rank = c(1, 3, 2, 4)
       ) -> df_polygon
     
     # Plot elements
@@ -1618,7 +1579,7 @@ fun_acti_plot_generalist <- function(df_acti){
     # Polygon
     fun_acti_plot_polygon(5) %>% 
       mutate(
-        rank = c(3, 1, 4, 2, 5)
+        factor_rank = c(3, 1, 4, 2, 5)
       ) -> df_polygon
     
     # Plot elements
@@ -1637,7 +1598,7 @@ fun_acti_plot_generalist <- function(df_acti){
         dbl_theta = pi/2
       ) %>% 
       mutate(
-        rank = c(
+        factor_rank = c(
           5, 4, 2, 
           3, 6, 1
         )
@@ -1667,7 +1628,7 @@ fun_acti_plot_generalist <- function(df_acti){
     
     df_polygon %>% 
       mutate(
-        rank = c(
+        factor_rank = c(
           6, 3, 2,
           4, 5, 1,
           7
@@ -1715,7 +1676,7 @@ fun_acti_plot_generalist <- function(df_acti){
     
     df_polygon %>% 
       mutate(
-        rank = c(
+        factor_rank = c(
           6, 3, 2, 4,
           5, 1, 8, 7
         )
@@ -1766,7 +1727,7 @@ fun_acti_plot_generalist <- function(df_acti){
     
     df_polygon %>% 
       mutate(
-        rank = c(
+        factor_rank = c(
           4, 1, 3, 2,
           6, 8, 7, 5,
           9
@@ -1819,7 +1780,7 @@ fun_acti_plot_generalist <- function(df_acti){
     
     df_polygon %>%
       mutate(
-        rank = c(
+        factor_rank = c(
           3, 10, 7, 5, 2,
           4, 9, 8, 6, 1
         )
@@ -1874,7 +1835,7 @@ fun_acti_plot_generalist <- function(df_acti){
     
     df_polygon %>% 
       mutate(
-        rank = c(
+        factor_rank = c(
           1, 3, 2, 4, 7,
           9, 6, 8, 5, 11,
           10
@@ -1934,7 +1895,7 @@ fun_acti_plot_generalist <- function(df_acti){
     
     df_polygon %>% 
       mutate(
-        rank = c(
+        factor_rank = c(
           4, 6, 9, 7, 8, 10,
           11, 3, 5, 12, 2, 1
         )
@@ -1988,7 +1949,7 @@ fun_acti_plot_generalist <- function(df_acti){
     
     df_polygon %>% 
       mutate(
-        rank = c(
+        factor_rank = c(
           11, 6, 2, 4, 9, 3,
           5, 8, 10, 7, 1, 12,
           13
@@ -2048,7 +2009,7 @@ fun_acti_plot_generalist <- function(df_acti){
     
     df_polygon %>% 
       mutate(
-        rank = c(
+        factor_rank = c(
           9, 7, 2, 5, 11, 3, 6,
           10, 4, 12, 8, 1, 13, 14
         )
@@ -2083,7 +2044,7 @@ fun_acti_plot_generalist <- function(df_acti){
     ggplot(aes_map) +
     geom_connection +
     geom_point(aes(
-      size = acti_score,
+      size = factor_score,
       color = atom_color
     )) +
     geom_text(aes(
@@ -2179,7 +2140,7 @@ fun_acti_plot_molecule <- function(df_acti, chr_factor_pal = NULL){
   
   # Conditionally apply plotting functions
   df_acti %>% 
-    split(.$occupation) %>% 
+    split(.$id_profile) %>% 
     lapply(
       function(acti){
         
