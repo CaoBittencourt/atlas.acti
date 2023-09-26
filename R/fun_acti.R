@@ -2032,7 +2032,7 @@ fun_acti_plot_molecule <- function(df_acti, chr_factor_pal = NULL){
 #   ) -> df_acti
 # 
 # df_acti %>%
-#   fun_acti_plot_molecule() -> 
+#   fun_acti_plot_molecule() ->
 #   list_plt_acti
 # 
 # list_plt_acti
