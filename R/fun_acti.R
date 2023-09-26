@@ -5,16 +5,17 @@
 #   'devtools' #GitHub packages (temp)
 #   , 'ggplot2', 'scales' #Data visualization
 #   , 'readr' #Read data (temp)
-#   , 'viridis' #Palette (temp)
 #   , 'vctrs' #Data frame subclasses
 #   , 'tidyr', 'dplyr' #Data wrangling
 # )
 # 
 # # Git packages
 # chr_git <- c(
-#   'CaoBittencourt' = 'atlas.skew',
-#   'CaoBittencourt' = 'atlas.ftools',
-#   'CaoBittencourt' = 'atlas.eqvl'
+#   'CaoBittencourt' = 'atlas.gene',
+#   'CaoBittencourt' = 'atlas.ind',
+#   'CaoBittencourt' = 'atlas.comp',
+#   'CaoBittencourt' = 'atlas.class',
+#   'CaoBittencourt' = 'atlas.ftools'
 # )
 # 
 # # Activate / install CRAN packages
@@ -55,289 +56,9 @@
 # )
 # 
 # rm(chr_pkg, chr_git)
-# 
+
 # [FUNCTIONS] ---------------------------
-# - Generalism function ---------------------------------------------------
-fun_acti_generalism <- function(
-    dbl_profile
-    , dbl_scale_lb = 0
-){
-  
-  # Arguments validation
-  stopifnot(
-    "'dbl_profile' must be numeric." =
-      is.numeric(dbl_profile)
-  )
-  
-  stopifnot(
-    "'dbl_scale_lb' must be numeric." =
-      is.numeric(dbl_scale_lb)
-  )
-  
-  # Data wrangling
-  dbl_scale_lb[[1]] -> dbl_scale_lb
-  
-  # Drop NAs
-  dbl_profile[!is.na(
-    dbl_profile
-  )] -> dbl_profile
-  
-  # Apply bounded variable skewness function
-  fun_skew_sdmode(
-    dbl_var =
-      dbl_profile
-    , dbl_scale_lb =
-      dbl_scale_lb
-    , dbl_scale_ub =
-      max(dbl_profile)
-  ) -> dbl_generalism
-  
-  rm(dbl_profile)
-  
-  # Output
-  return(dbl_generalism)
-  
-}
-
-# - Indispensability function ---------------------------------------------
-fun_acti_indispensability <- function(
-    dbl_profile
-    , dbl_scale_lb = 0
-    , dbl_generalism = NULL
-){
-  
-  # Arguments validation
-  stopifnot(
-    "'dbl_profile' must be a numeric." =
-      is.numeric(dbl_profile)
-  )
-  
-  stopifnot(
-    "'dbl_scale_lb' must be numeric." =
-      is.numeric(dbl_scale_lb)
-  )
-  
-  stopifnot(
-    "'dbl_generalism' must be either NULL or numeric." =
-      any(
-        is.numeric(dbl_generalism)
-        , is.null(dbl_generalism)
-      )
-  )
-  
-  # Data wrangling
-  dbl_scale_lb[[1]] -> dbl_scale_lb
-  
-  if(is.null(dbl_generalism)){
-    
-    fun_acti_generalism(
-      dbl_profile
-      , dbl_scale_lb =
-        dbl_scale_lb
-    ) -> dbl_generalism
-    
-  }
-  
-  dbl_generalism[[1]] -> dbl_generalism
-  
-  dbl_profile[!is.na(
-    dbl_profile
-  )] -> dbl_profile
-  
-  # Equivalence of normalized scores
-  fun_eqvl_equivalence(
-    dbl_var =
-      dbl_profile
-    , dbl_scale_lb =
-      dbl_scale_lb
-    , dbl_scale_ub =
-      max(dbl_profile)
-    , dbl_scaling =
-      1 - dbl_generalism
-  ) -> dbl_indispensability
-  
-  if(is.matrix(dbl_profile)){
-    
-    colnames(dbl_profile) ->
-      names(dbl_indispensability)
-    
-  } else {
-    
-    names(dbl_profile) ->
-      names(dbl_indispensability)
-    
-  }
-  
-  # Output
-  return(dbl_indispensability)
-  
-}
-
-# - Competency function ---------------------------------------------------
-fun_acti_competency <- function(
-    dbl_profile
-    , dbl_scale_lb = 0
-    , dbl_scale_ub = 100
-    , dbl_generalism = NULL
-){
-  
-  # Arguments validation
-  stopifnot(
-    "'dbl_profile' must be numeric." =
-      is.numeric(dbl_profile)
-  )
-  
-  stopifnot(
-    "'dbl_scale_lb' must be numeric." =
-      is.numeric(dbl_scale_lb)
-  )
-  
-  stopifnot(
-    "'dbl_scale_ub' must be numeric." =
-      is.numeric(dbl_scale_ub)
-  )
-  
-  stopifnot(
-    "'dbl_generalism' must be either NULL or numeric." =
-      any(
-        is.numeric(dbl_generalism)
-        , is.null(dbl_generalism)
-      )
-  )
-  
-  # Data wrangling
-  dbl_scale_lb[[1]] -> dbl_scale_lb
-  
-  dbl_scale_ub[[1]] -> dbl_scale_ub
-  
-  if(is.null(dbl_generalism)){
-    
-    fun_acti_generalism(
-      dbl_profile
-      , dbl_scale_lb =
-        dbl_scale_lb
-    ) -> dbl_generalism
-    
-  }
-  
-  dbl_generalism[[1]] -> dbl_generalism
-  
-  dbl_profile[!is.na(
-    dbl_profile
-  )] -> dbl_profile
-  
-  # Weighted mean of normalized item scores
-  # adjusted by item importance and generalism
-  weighted.mean(
-    x =
-      dbl_profile / (
-        dbl_scale_ub -
-          dbl_scale_lb
-      ) -
-      dbl_scale_lb / (
-        dbl_scale_ub -
-          dbl_scale_lb
-      )
-    , w =
-      fun_acti_indispensability(
-        dbl_profile = 
-          dbl_profile
-        , dbl_scale_lb = 
-          dbl_scale_lb
-        , dbl_generalism =
-          dbl_generalism
-      )
-  ) -> dbl_competency
-  
-  # Output
-  return(dbl_competency)
-  
-}
-
-# - Classifier function -------------------------------------------------
-fun_acti_classifier <- function(
-    dbl_var
-    , dbl_scale_lb = 0
-    , dbl_scale_ub = 1
-    , int_levels = 5
-    , chr_class_labels = NULL
-){
-  
-  # Arguments validation
-  stopifnot(
-    "'dbl_var' must be numeric." = 
-      is.numeric(dbl_var)
-  )
-  
-  stopifnot(
-    "'dbl_scale_lb' must be numeric." = 
-      is.numeric(dbl_scale_lb)
-  )
-  
-  stopifnot(
-    "'dbl_scale_ub' must be numeric." = 
-      is.numeric(dbl_scale_ub)
-  )
-  
-  stopifnot(
-    "'int_levels' must be an integer." = 
-      is.numeric(int_levels)
-  )
-  
-  stopifnot(
-    "'chr_class_labels' must be either NULL or a character vector with length equal to 'int_levels'." = 
-      any(
-        is.null(chr_class_labels),
-        all(
-          is.character(chr_class_labels),
-          length(chr_class_labels) ==
-            ceiling(int_levels[[1]])
-        )
-      )
-  )
-  
-  # Data wrangling
-  dbl_scale_lb[[1]] -> dbl_scale_lb
-  
-  dbl_scale_ub[[1]] -> dbl_scale_ub
-  
-  int_levels[[1]] -> int_levels
-  ceiling(int_levels) -> int_levels
-  
-  # Classify variable
-  findInterval(
-    dbl_var
-    , seq(
-      dbl_scale_lb, 
-      dbl_scale_ub, 
-      length.out = 1 +
-        int_levels
-    )
-    , all.inside = T
-  ) -> int_class_id
-  
-  names(dbl_var) -> 
-    names(int_class_id)
-  
-  if(!is.null(chr_class_labels)){
-    
-    factor(
-      int_class_id
-      , levels =
-        1:int_levels
-      , labels =
-        chr_class_labels
-      , ordered = T
-    ) -> int_class_id
-    
-  }
-  
-  # Output
-  return(int_class_id)
-  
-}
-
-# - Numerical ACTI --------------------------------------------------------
+# - ACTI type function --------------------------------------------------------
 fun_acti_type <- function(
     df_data
     , efa_model
@@ -415,15 +136,15 @@ fun_acti_type <- function(
       )
     ) -> df_data
   
-  # Generalism
+  # Generality
   apply(
     df_data %>% select(-id_profile)
-    , 1, fun_acti_generalism
+    , 1, fun_gene_generality
     , dbl_scale_lb = dbl_scale_lb
-  ) -> dbl_generalism
+  ) -> dbl_generality
   
   df_data$id_profile -> 
-    names(dbl_generalism)
+    names(dbl_generality)
   
   # Factor scores
   fun_ftools_factor_scores(
@@ -455,33 +176,33 @@ fun_acti_type <- function(
   
   # Estimate ACTI scores
   as_tibble(
-    dbl_generalism
+    dbl_generality
     , rownames =
       'id_profile'
   ) %>% 
     rename(
-      generalism = 2
-    ) -> df_generalism
+      generality = 2
+    ) -> df_generality
   
-  rm(dbl_generalism)
+  rm(dbl_generality)
   
   df_factor_scores %>% 
     right_join(
-      df_generalism
+      df_generality
     ) %>% 
     group_by(
       id_profile
     ) %>% 
     mutate(
       acti_score = 
-        fun_acti_indispensability(
+        fun_ind_indispensability(
           dbl_profile = 
             factor_score
-          , dbl_generalism = 
-            first(generalism)
+          , dbl_generality = 
+            first(generality)
         )
       , acti_class = 
-        fun_acti_classifier(
+        fun_class_classifier(
           acti_score
           , dbl_scale_lb = 0
           , dbl_scale_ub = 1
@@ -496,7 +217,7 @@ fun_acti_type <- function(
     ) -> df_acti
   
   rm(df_factor_scores)
-  rm(df_generalism)
+  rm(df_generality)
   
   # Arrange
   df_acti %>%
@@ -563,7 +284,7 @@ fun_acti_type <- function(
     if(
       first(
         df_data$
-        generalism
+        generality
       ) > 0.5
     ){
       
@@ -605,7 +326,7 @@ fun_acti_type <- function(
     relocate(
       id_profile,
       acti_type,
-      generalism,
+      generality,
       factor,
       factor_rank,
       factor_score,
@@ -2144,7 +1865,7 @@ fun_acti_plot_molecule <- function(df_acti, chr_factor_pal = NULL){
     lapply(
       function(acti){
         
-        if(first(acti$generalism) > 0.5){
+        if(first(acti$generality) > 0.5){
           
           # If generalist, call generalist function
           fun_acti_plot_generalist(acti) ->
@@ -2192,87 +1913,16 @@ fun_acti_plot_molecule <- function(df_acti, chr_factor_pal = NULL){
 # library(readr)
 # 
 # read_rds(
-#   'C:/Users/Cao/Documents/Github/atlas-research/data/efa/efa_equamax_14factors.rds'
+#   'C:/Users/Cao/Documents/Github/atlas-research-dev/data/efa/efa_equamax_14factors.rds'
 # ) -> efa_model
 # 
 # read_csv(
-#   'C:/Users/Cao/Documents/Github/Atlas-Research/Data/df_occupations_2023_efa.csv'
+#   'C:/Users/Cao/Documents/Github/Atlas-Research-dev/Data/df_occupations_2023_efa.csv'
 # ) -> df_occupations
 # 
 # # read_csv(
 # #   'https://docs.google.com/spreadsheets/d/e/2PACX-1vSVdXvQMe4DrKS0LKhY0CZRlVuCCkEMHVJHQb_U-GKF21CjcchJ5jjclGSlQGYa5Q/pub?gid=1515296378&single=true&output=csv'
 # # ) -> df_input
-# 
-# # - Generalism test -------------------------------------------------------
-# fun_acti_generalism(
-#   dbl_profile =
-#     rnorm(50, 50, 25) %>%
-#     pmax(0) %>%
-#     pmin(100)
-#   , dbl_scale_lb = 0
-# )
-# 
-# fun_acti_generalism(
-#   dbl_profile =
-#     rnorm(50, 50, 5) %>%
-#     pmax(0) %>%
-#     pmin(100)
-#   , dbl_scale_lb = 0
-# )
-# 
-# fun_acti_generalism(
-#   dbl_profile =
-#     rnorm(50, 50, 0) %>%
-#     pmax(0) %>%
-#     pmin(100)
-#   , dbl_scale_lb = 0
-# )
-# 
-# # - Indispensability test -------------------------------------------------
-# fun_acti_indispensability(
-#   dbl_profile =
-#     rnorm(50, 50, 25) %>%
-#     pmax(0) %>%
-#     pmin(100)
-#   , dbl_scale_lb = 0
-# ) %>% round(4)
-# 
-# # - Competency test -------------------------------------------------------
-# fun_acti_competency(
-#   dbl_profile =
-#     rnorm(50, 100, 25) %>%
-#     pmax(0) %>%
-#     pmin(100)
-#   , dbl_scale_lb = 0
-#   , dbl_scale_ub = 100
-# )
-# 
-# fun_acti_competency(
-#   dbl_profile =
-#     rnorm(50, 50, 25) %>%
-#     pmax(0) %>%
-#     pmin(100)
-#   , dbl_scale_lb = 0
-#   , dbl_scale_ub = 100
-# )
-# 
-# fun_acti_competency(
-#   dbl_profile =
-#     rnorm(50, 50, 5) %>%
-#     pmax(0) %>%
-#     pmin(100)
-#   , dbl_scale_lb = 0
-#   , dbl_scale_ub = 100
-# )
-# 
-# fun_acti_competency(
-#   dbl_profile =
-#     rnorm(50, 50, 0) %>%
-#     pmax(0) %>%
-#     pmin(100)
-#   , dbl_scale_lb = 0
-#   , dbl_scale_ub = 100
-# )
 # 
 # # - Numerical ACTI test ---------------------------------------------------
 # df_occupations %>%
@@ -2288,8 +1938,8 @@ fun_acti_plot_molecule <- function(df_acti, chr_factor_pal = NULL){
 #     'An', 'Mt', 'Rb',
 #     'In', 'Mc'
 #   )
-#   , chr_data_id =
-#     dsds$occupation
+#   , chr_id_col =
+#     'occupation'
 #   , efa_model = efa_model
 #   , dbl_scale_lb = 0
 # )
@@ -2310,9 +1960,6 @@ fun_acti_plot_molecule <- function(df_acti, chr_factor_pal = NULL){
 # 
 # fun_acti_type(
 #   df_data = dsds
-#   # df_data = 
-#   # df_occupations %>% 
-#   # slice_head(n = 10)
 #   , chr_factor_labels = c(
 #     'Ds', 'Eg', 'Hs',
 #     'Mn', 'Tr', 'Ad',
@@ -2320,73 +1967,72 @@ fun_acti_plot_molecule <- function(df_acti, chr_factor_pal = NULL){
 #     'An', 'Mt', 'Rb',
 #     'In', 'Mc'
 #   )
-#   , chr_data_id =
-#     dsds$occupation
-#   # df_occupations$occupation[1:10]
+#   , chr_id_col =
+#     'occupation'
 #   , efa_model = efa_model
 #   , dbl_scale_lb = 0
 # ) -> df_acti
 # 
 # map_df(
 #   1:nrow(df_acti)
-#   , ~ df_acti %>% 
+#   , ~ df_acti %>%
 #     slice_head(
 #       n = .x
-#     ) %>% 
+#     ) %>%
 #     mutate(
-#       generalism = 0
-#       , occupation = 
+#       generality = 0
+#       , id_profile =
 #         paste0(
-#           occupation,
+#           id_profile,
 #           '_specialist'
 #         )
-#       , occupation = 
+#       , id_profile =
 #         paste0(
-#           occupation, .x
+#           id_profile, .x
 #         )
 #     )
-# ) %>% 
+# ) %>%
 #   bind_rows(
 #     map_df(
 #       1:nrow(df_acti)
-#       , ~ df_acti %>% 
+#       , ~ df_acti %>%
 #         slice_head(
 #           n = .x
-#         ) %>% 
+#         ) %>%
 #         mutate(
-#           occupation = 
+#           id_profile =
 #             paste0(
-#               occupation,
+#               id_profile,
 #               '_generalist'
 #             )
-#           , occupation = 
+#           , id_profile =
 #             paste0(
-#               occupation, .x
+#               id_profile, .x
 #             )
 #         ))
 #   ) -> df_acti
 # 
-# df_acti %>% 
+# df_acti %>%
 #   mutate(
-#     occupation =
+#     id_profile =
 #       str_replace_all(
-#         occupation
+#         id_profile
 #         , ' ', '_'
 #       )
-#     , occupation = 
+#     , id_profile =
 #       str_to_lower(
-#         occupation
+#         id_profile
 #       )
-#     , occupation = factor(
-#       occupation
+#     , id_profile = factor(
+#       id_profile
 #       , levels = unique(
-#         occupation
+#         id_profile
 #       )
 #     )
 #   ) -> df_acti
 # 
 # df_acti %>%
-#   fun_acti_plot_molecule(
-#     # chr_factor_pal =
-#     #   chr_factor_pal
-#   ) -> list_plt_acti
+#   fun_acti_plot_molecule() -> 
+#   list_plt_acti
+# 
+# list_plt_acti
