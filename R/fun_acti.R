@@ -195,7 +195,7 @@ fun_acti_type <- function(
     ) %>% 
     mutate(
       acti_score = 
-        fun_ind_indispensability(
+        fun_kind_indispensability(
           dbl_profile = 
             factor_score
           , dbl_generality = 
