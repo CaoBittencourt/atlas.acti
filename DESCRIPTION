@@ -10,6 +10,7 @@ Depends:
     tidyr,
     vctrs,
     atlas.ftools,
+    atlas.class,
     atlas.gene,
     atlas.comp,
     atlas.ind,
@@ -17,6 +18,7 @@ Depends:
     scales
 Remotes: 
   github::caobittencourt/atlas.ftools,
+  github::caobittencourt/atlas.class,
   github::caobittencourt/atlas.gene,
   github::caobittencourt/atlas.comp,
   github::caobittencourt/atlas.ind,
