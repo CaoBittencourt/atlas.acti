@@ -65,6 +65,7 @@ fun_acti_type <- function(
     , chr_factor_labels = NULL
     , chr_id_col = NULL
     , dbl_scale_lb = 0
+    , dbl_scale_ub = 100
 ){
   
   # Arguments validation
@@ -106,8 +107,15 @@ fun_acti_type <- function(
       is.numeric(dbl_scale_lb)
   )
   
+  stopifnot(
+    "'dbl_scale_ub' must be numeric." =
+      is.numeric(dbl_scale_ub)
+  )
+  
   # Data wrangling
   dbl_scale_lb[[1]] -> dbl_scale_lb
+  
+  dbl_scale_ub[[1]] -> dbl_scale_ub
   
   chr_id_col[[1]] -> chr_id_col
   
@@ -146,6 +154,18 @@ fun_acti_type <- function(
   df_data$id_profile -> 
     names(dbl_generality)
   
+  # Competence
+  apply(
+    df_data %>% select(-id_profile)
+    , 1, fun_comp_competence
+    , dbl_scale_lb = dbl_scale_lb
+    , dbl_scale_ub = dbl_scale_ub
+    , dbl_generality = dbl_generality
+  ) -> dbl_competence
+  
+  df_data$id_profile -> 
+    names(dbl_competence)
+  
   # Factor scores
   fun_ftools_factor_scores(
     df_data = df_data
@@ -174,21 +194,20 @@ fun_acti_type <- function(
   
   rm(chr_factor_labels)
   
-  # Estimate ACTI scores
-  as_tibble(
-    dbl_generality
-    , rownames =
-      'id_profile'
-  ) %>% 
-    rename(
-      generality = 2
-    ) -> df_generality
+  # Initial data frame
+  tibble(
+    id_profile = names(dbl_generality),
+    competence = dbl_competence,
+    generality = dbl_generality
+  ) -> df_acti
   
   rm(dbl_generality)
+  rm(dbl_competence)
   
+  # Estimate ACTI scores
   df_factor_scores %>% 
     right_join(
-      df_generality
+      df_acti
     ) %>% 
     group_by(
       id_profile
@@ -217,7 +236,6 @@ fun_acti_type <- function(
     ) -> df_acti
   
   rm(df_factor_scores)
-  rm(df_generality)
   
   # Arrange
   df_acti %>%
@@ -327,6 +345,7 @@ fun_acti_type <- function(
       id_profile,
       acti_type,
       generality,
+      competence,
       factor,
       factor_rank,
       factor_score,
