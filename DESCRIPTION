@@ -1,7 +1,7 @@
 Package: atlas.acti
 Type: Package
-Title: The Atlas Career Type Indicator
-Version: 2.1.10
+Title: ACTI: The Atlas Career Type Indicator
+Version: 2.1.11
 Author: Cao Bittencourt
 Maintainer: Cao Bittencourt <caobittencourt@gmail.com>
 Description: The Atlas Career Type Indicator (ACTI) is inspired by the jungian typology model and helps individuals discover their "Career Type" as a combination of various factors derived from Exploratory Factor Analysis of huge BLS databases.
