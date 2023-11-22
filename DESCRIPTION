@@ -21,7 +21,7 @@ Remotes:
   github::caobittencourt/atlas.class,
   github::caobittencourt/atlas.gene,
   github::caobittencourt/atlas.comp,
-  github::caobittencourt/atlas.kind,
+  github::caobittencourt/atlas.kind
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
