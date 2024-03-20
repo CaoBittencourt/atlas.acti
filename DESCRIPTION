@@ -1,7 +1,7 @@
 Package: atlas.acti
 Type: Package
 Title: ACTI: The Atlas Career Type Indicator
-Version: 2.1.11
+Version: 2.1.12
 Author: Cao Bittencourt
 Maintainer: Cao Bittencourt <caobittencourt@gmail.com>
 Description: The Atlas Career Type Indicator (ACTI) is inspired by the jungian typology model and helps individuals discover their "Career Type" as a combination of various factors derived from Exploratory Factor Analysis of huge BLS databases.
@@ -13,7 +13,7 @@ Depends:
     atlas.class,
     atlas.gene,
     atlas.comp,
-    atlas.kind,
+    atlas.aeq,
     ggplot2,
     scales
 Remotes: 
@@ -21,7 +21,7 @@ Remotes:
   github::caobittencourt/atlas.class,
   github::caobittencourt/atlas.gene,
   github::caobittencourt/atlas.comp,
-  github::caobittencourt/atlas.kind
+  github::caobittencourt/atlas.aeq
 License: What license is it under?
 Encoding: UTF-8
 LazyData: true
